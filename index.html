@@ -1,0 +1,252 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adverbs of Frequency Quiz</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #2e7d32;
+      --secondary-color: #1b5e20;
+      --accent-color: #7cb342;
+      --success-color: #4caf50;
+      --error-color: #f44336;
+      --background-color: #e8f5e9;
+      --card-color: #ffffff;
+      --shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+      --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
+    body {
+      background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+      min-height: 100vh; display:flex; justify-content:center; align-items:center; padding:20px;
+    }
+    .container { max-width: 900px; width: 100%; }
+    header {
+      text-align:center; margin-bottom:30px; padding:30px;
+      background:var(--card-color); border-radius:18px; box-shadow:var(--shadow);
+      border-left:8px solid var(--secondary-color);
+    }
+    h1 { color: var(--secondary-color); font-size: 2.5rem; margin-bottom:15px; }
+    .subtitle { font-size:1.2rem; color: var(--primary-color); }
+    .quiz-container {
+      background: var(--card-color); border-radius:18px; box-shadow:var(--shadow);
+      padding:30px; margin-bottom:30px;
+    }
+    .question-header {
+      display:flex; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap;
+    }
+    .question-number, .score-container {
+      padding:10px 20px; border-radius:30px; font-weight:700;
+      background: rgba(123,182,97,0.15); color: var(--secondary-color);
+    }
+    .progress-bar { height:14px; background:#e0f2e1; border-radius:10px; overflow:hidden; margin:10px 0; }
+    .progress { height:100%; background:linear-gradient(90deg, var(--accent-color), var(--primary-color)); width:0%; transition:width 0.5s; }
+    .question {
+      background:#f8fbf3; padding:20px; border-left:5px solid var(--accent-color);
+      border-radius:15px; font-size:1.3rem; margin:20px 0;
+    }
+    .options { display:grid; gap:15px; }
+    .option {
+      background:#f8fbf3; border:2px solid #dcedc8; border-radius:12px; padding:15px; cursor:pointer;
+      display:flex; align-items:center; transition:var(--transition);
+    }
+    .option:hover { background:#edf7e7; border-color:var(--accent-color); }
+    .option-letter {
+      width:35px; height:35px; border-radius:50%; background:#dcedc8; display:flex; justify-content:center; align-items:center;
+      margin-right:15px; font-weight:bold; color: var(--secondary-color);
+    }
+    .option.correct { border-color: var(--success-color); background:rgba(76,175,80,0.1); }
+    .option.incorrect { border-color: var(--error-color); background:rgba(244,67,54,0.1); }
+    .feedback { display:none; margin-top:20px; padding:20px; background:#f8fbf3; border-left:5px solid var(--accent-color); border-radius:12px; }
+    .feedback.show { display:block; }
+    .correct-answer { font-weight:bold; margin:10px 0; }
+    .buttons { margin-top:20px; display:flex; justify-content:flex-end; }
+    .btn {
+      padding:12px 25px; border:none; border-radius:10px; cursor:pointer; font-weight:600;
+      background:linear-gradient(135deg, var(--accent-color), var(--primary-color)); color:white;
+      margin:5px;
+    }
+    .btn:disabled { opacity:0.6; cursor:not-allowed; }
+    .result-container {
+      display:none; text-align:center; background: var(--card-color);
+      border-radius:18px; padding:40px; box-shadow:var(--shadow);
+    }
+    .result-container.show { display:block; }
+    .score { font-size:3rem; color: var(--primary-color); margin:20px 0; }
+    .review-container {
+      display:none; background: var(--card-color); padding:30px; border-radius:18px; box-shadow:var(--shadow); margin-top:20px;
+    }
+    .review-question {
+      margin-bottom:25px; padding:20px; border-left:5px solid var(--accent-color); border-radius:12px;
+      background:#f8fbf3;
+    }
+    .review-question h3 { margin-bottom:10px; color: var(--secondary-color); }
+    .review-question p { margin:5px 0; }
+    .user-answer.correct { color: var(--success-color); font-weight: bold; }
+    .user-answer.incorrect { color: var(--error-color); font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-language"></i> Adverbs of Frequency Quiz</h1>
+      <p class="subtitle">Choose the correct adverb of frequency to complete each sentence.</p>
+    </header>
+
+    <div class="quiz-container">
+      <div class="question-header">
+        <div class="question-number">Question <span id="current-question">1</span> of <span id="total-questions"></span></div>
+        <div class="score-container">Score: <span id="current-score">0</span></div>
+      </div>
+      <div class="progress-bar"><div class="progress" id="progress"></div></div>
+
+      <div class="question" id="question-text">Loading...</div>
+      <audio controls id="audio" style="margin:15px 0;"></audio>
+      <div class="options" id="options-container"></div>
+      <div class="feedback" id="feedback">
+        <div class="correct-answer" id="correct-answer"></div>
+        <div id="explanation"></div>
+      </div>
+      <div class="buttons">
+        <button class="btn" id="next-btn" disabled>Next</button>
+      </div>
+    </div>
+
+    <div class="result-container" id="result-container">
+      <h2><i class="fas fa-medal"></i> Quiz Finished!</h2>
+      <div class="score" id="final-score">0</div>
+      <p id="percentage"></p>
+      <button class="btn" id="review-btn">Review Answers</button>
+      <button class="btn" onclick="location.reload()">Restart</button>
+    </div>
+
+    <div class="review-container" id="review-container"></div>
+  </div>
+
+  <script>
+    const questions = [
+      { q:"She ___ arrives late for work because she is very punctual.", a:"never", options:["always","never","sometimes","rarely"], reason:"Use 'never' to show something does not happen at all." },
+      { q:"I ___ brush my teeth in the morning.", a:"always", options:["sometimes","rarely","always","hardly ever"], reason:"'Always' is used for actions that happen 100% of the time." },
+      { q:"He ___ goes jogging in the park every morning.", a:"daily", options:["weekly","daily","yearly","occasionally"], reason:"'Daily' is used for actions that happen every day." },
+      { q:"We ___ go to church on Sundays.", a:"weekly", options:["weekly","yearly","rarely","seldom"], reason:"'Weekly' refers to something done once a week." },
+      { q:"They ___ meet for lunch at this café.", a:"frequently", options:["seldom","frequently","always","occasionally"], reason:"'Frequently' means it happens many times, but not daily." },
+      { q:"Our company sends newsletters ___.", a:"monthly", options:["monthly","yearly","weekly","rarely"], reason:"'Monthly' is used for something that happens once a month." },
+      { q:"We ___ travel abroad in the summer.", a:"yearly", options:["never","yearly","sometimes","weekly"], reason:"'Yearly' is used for actions that occur once a year." },
+      { q:"He ___ forgets his keys. It happens about once a month.", a:"occasionally", options:["rarely","occasionally","always","seldom"], reason:"'Occasionally' refers to rare but not very rare events." },
+      { q:"She ___ goes to the gym, maybe once every few months.", a:"seldom", options:["seldom","always","frequently","daily"], reason:"'Seldom' is used for things that almost never happen." },
+      { q:"I ___ eat fast food. I like to cook at home.", a:"rarely", options:["rarely","never","weekly","sometimes"], reason:"'Rarely' is used when something happens very infrequently." },
+      { q:"They ___ go out to eat on weekdays.", a:"usually", options:["usually","never","occasionally","hardly ever"], reason:"'Usually' means something happens most of the time." },
+      { q:"He ___ drinks coffee in the evening. Only when he’s very tired.", a:"hardly ever", options:["always","frequently","hardly ever","rarely"], reason:"'Hardly ever' means something happens almost never." },
+      { q:"The team ___ meets to discuss projects. It depends on the workload.", a:"generally", options:["always","never","generally","monthly"], reason:"'Generally' expresses something that is mostly true." },
+      { q:"You ___ see shooting stars here in the city.", a:"never", options:["always","never","sometimes","rarely"], reason:"'Never' is used to express impossibility or zero frequency." },
+      { q:"My friends ___ hang out on Friday nights.", a:"sometimes", options:["sometimes","never","frequently","always"], reason:"'Sometimes' means occasionally, with no fixed schedule." },
+      { q:"She ___ writes in her journal. It’s part of her routine.", a:"daily", options:["weekly","daily","rarely","occasionally"], reason:"'Daily' fits when the action is part of a daily habit." },
+      { q:"They ___ hold meetings on Mondays.", a:"usually", options:["rarely","yearly","usually","seldom"], reason:"'Usually' is used for actions that happen most of the time." },
+      { q:"My cat ___ knocks things off the table. It’s annoying.", a:"frequently", options:["frequently","seldom","occasionally","always"], reason:"'Frequently' means it happens often, but not always." },
+      { q:"We ___ go on vacation in July.", a:"yearly", options:["weekly","monthly","yearly","rarely"], reason:"'Yearly' means it happens once a year, usually the same month." },
+      { q:"He ___ joins us for lunch, maybe once a year.", a:"hardly ever", options:["always","hardly ever","never","seldom"], reason:"'Hardly ever' shows very low frequency." }
+    ];
+
+    let currentIndex = 0, score = 0;
+    let userAnswers = [];
+    const totalQuestionsEl = document.getElementById("total-questions");
+    const currentQuestionEl = document.getElementById("current-question");
+    const questionText = document.getElementById("question-text");
+    const optionsContainer = document.getElementById("options-container");
+    const feedback = document.getElementById("feedback");
+    const correctAnswerEl = document.getElementById("correct-answer");
+    const explanationEl = document.getElementById("explanation");
+    const nextBtn = document.getElementById("next-btn");
+    const scoreEl = document.getElementById("current-score");
+    const progress = document.getElementById("progress");
+    const resultContainer = document.getElementById("result-container");
+    const finalScoreEl = document.getElementById("final-score");
+    const percentageEl = document.getElementById("percentage");
+    const audioEl = document.getElementById("audio");
+    const reviewBtn = document.getElementById("review-btn");
+    const reviewContainer = document.getElementById("review-container");
+
+    totalQuestionsEl.textContent = questions.length;
+
+    function loadQuestion() {
+      const q = questions[currentIndex];
+      currentQuestionEl.textContent = currentIndex + 1;
+      questionText.textContent = q.q;
+      audioEl.src = `https://api.streamelements.com/kappa/v2/speech?voice=Brian&text=${encodeURIComponent(q.q.replace("___", q.a))}`;
+      optionsContainer.innerHTML = "";
+      q.options.forEach((opt, i) => {
+        const div = document.createElement("div");
+        div.className = "option";
+        div.innerHTML = `<div class="option-letter">${String.fromCharCode(65+i)}</div><div>${opt}</div>`;
+        div.addEventListener("click", () => selectOption(div, opt, q.a, q.reason));
+        optionsContainer.appendChild(div);
+      });
+      feedback.classList.remove("show");
+      nextBtn.disabled = true;
+      progress.style.width = `${(currentIndex/questions.length)*100}%`;
+    }
+
+    function selectOption(div, chosen, correct, reason) {
+      document.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+      div.classList.add("selected");
+      nextBtn.disabled = false;
+
+      feedback.classList.add("show");
+      correctAnswerEl.textContent = "Correct Answer: " + correct;
+      explanationEl.textContent = reason;
+
+      userAnswers[currentIndex] = { chosen, correct, reason };
+
+      if(chosen === correct) {
+        div.classList.add("correct");
+        score++; scoreEl.textContent = score;
+      } else {
+        div.classList.add("incorrect");
+        document.querySelectorAll(".option").forEach(opt => {
+          if(opt.innerText.includes(correct)) opt.classList.add("correct");
+        });
+      }
+    }
+
+    nextBtn.addEventListener("click", () => {
+      currentIndex++;
+      if(currentIndex < questions.length) {
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    });
+
+    function showResults() {
+      document.querySelector(".quiz-container").style.display="none";
+      resultContainer.classList.add("show");
+      finalScoreEl.textContent = `${score} / ${questions.length}`;
+      const percent = Math.round((score/questions.length)*100);
+      percentageEl.textContent = `Your Score: ${percent}%`;
+    }
+
+    reviewBtn.addEventListener("click", () => {
+      resultContainer.style.display="none";
+      reviewContainer.style.display="block";
+      reviewContainer.innerHTML = "<h2><i class='fas fa-search'></i> Review Answers</h2>";
+      questions.forEach((q, i) => {
+        const reviewDiv = document.createElement("div");
+        reviewDiv.className = "review-question";
+        const userAnswer = userAnswers[i] ? userAnswers[i].chosen : "No answer";
+        const isCorrect = userAnswers[i] && userAnswers[i].chosen === q.a;
+        reviewDiv.innerHTML = `
+          <h3>Q${i+1}: ${q.q}</h3>
+          <p class="user-answer ${isCorrect ? 'correct':'incorrect'}">Your Answer: ${userAnswer}</p>
+          <p><strong>Correct Answer:</strong> ${q.a}</p>
+          <p><em>${q.reason}</em></p>
+        `;
+        reviewContainer.appendChild(reviewDiv);
+      });
+    });
+
+    loadQuestion();
+  </script>
+</body>
+</html>
